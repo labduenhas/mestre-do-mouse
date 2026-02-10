@@ -33,8 +33,8 @@ const App: React.FC = () => {
 
   const handleLevelSelect = (id: number) => {
     if (id > 1) {
-       const prevLevel = gameState.profile.progress[id-1];
-       if (!prevLevel || !prevLevel.completed) return; 
+      const prevLevel = gameState.profile.progress[id - 1];
+      if (!prevLevel || !prevLevel.completed) return;
     }
     setGameState(prev => ({ ...prev, activeLevelId: id, view: 'game' }));
   };
@@ -60,12 +60,18 @@ const App: React.FC = () => {
     saveState(updatedProfile);
   };
 
+  const handleResetProgress = () => {
+    const updatedProfile = { ...gameState.profile, progress: {} };
+    saveState(updatedProfile);
+  };
+
   if (gameState.view === 'teacher') {
     return (
-      <TeacherPanel 
-        profile={gameState.profile} 
+      <TeacherPanel
+        profile={gameState.profile}
         onUpdateSettings={handleSettingsUpdate}
-        onClose={() => setGameState(prev => ({...prev, view: 'map'}))}
+        onClose={() => setGameState(prev => ({ ...prev, view: 'map' }))}
+        onResetProgress={handleResetProgress}
       />
     );
   }
@@ -74,7 +80,7 @@ const App: React.FC = () => {
     const props = {
       settings: gameState.profile.settings,
       onComplete: handleLevelComplete,
-      onExit: () => setGameState(prev => ({...prev, view: 'map', activeLevelId: null}))
+      onExit: () => setGameState(prev => ({ ...prev, view: 'map', activeLevelId: null }))
     };
 
     switch (gameState.activeLevelId) {
@@ -90,88 +96,88 @@ const App: React.FC = () => {
   // Map View
   return (
     <div className="min-h-screen bg-green-50 flex flex-col">
-       <header className="p-4 bg-white shadow-sm flex justify-between items-center z-10 sticky top-0">
-         <div className="flex items-center gap-3">
-            <span className="text-3xl">🎓</span>
-            <div className="font-bold text-gray-700 text-lg sm:text-xl">Mestre do Mouse</div>
-         </div>
-         <div className="flex gap-2">
-            <Button size="sm" variant="primary" onClick={() => setGameState(prev => ({...prev, view: 'teacher'}))}>
-               <Settings className="w-4 h-4 mr-2" /> Prof.
-            </Button>
-         </div>
-       </header>
+      <header className="p-4 bg-white shadow-sm flex justify-between items-center z-10 sticky top-0">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl">🎓</span>
+          <div className="font-bold text-gray-700 text-lg sm:text-xl">Mestre do Mouse</div>
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" variant="primary" onClick={() => setGameState(prev => ({ ...prev, view: 'teacher' }))}>
+            <Settings className="w-4 h-4 mr-2" /> Prof.
+          </Button>
+        </div>
+      </header>
 
-       <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center justify-center">
-          <h2 className="text-4xl font-bold text-green-800 mb-8 drop-shadow-sm text-center">Mapa de Fases</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl px-4">
-             {LEVEL_INFO.map((level, idx) => {
-               const isCompleted = !!gameState.profile.progress[level.id]?.completed;
-               const isLocked = idx > 0 && !gameState.profile.progress[level.id - 1]?.completed;
-               const isFinal = level.id === 5;
-               
-               return (
-                 <div 
-                   key={level.id} 
-                   className={`
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center justify-center">
+        <h2 className="text-4xl font-bold text-green-800 mb-8 drop-shadow-sm text-center">Mapa de Fases</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl px-4">
+          {LEVEL_INFO.map((level, idx) => {
+            const isCompleted = !!gameState.profile.progress[level.id]?.completed;
+            const isLocked = idx > 0 && !gameState.profile.progress[level.id - 1]?.completed;
+            const isFinal = level.id === 5;
+
+            return (
+              <div
+                key={level.id}
+                className={`
                      relative rounded-3xl p-6 border-b-8 shadow-xl cursor-pointer transform transition-all duration-300 flex flex-col md:flex-row items-center gap-6
-                     ${isFinal 
-                        ? 'md:col-span-2 bg-gradient-to-br from-amber-100 to-orange-50 border-orange-300 hover:border-orange-400' 
-                        : 'bg-white border-green-200 hover:border-green-300'
-                     }
-                     ${isLocked 
-                        ? 'opacity-60 grayscale cursor-not-allowed' 
-                        : 'hover:-translate-y-2 hover:shadow-2xl active:scale-95'
-                     }
+                     ${isFinal
+                    ? 'md:col-span-2 bg-gradient-to-br from-amber-100 to-orange-50 border-orange-300 hover:border-orange-400'
+                    : 'bg-white border-green-200 hover:border-green-300'
+                  }
+                     ${isLocked
+                    ? 'opacity-60 grayscale cursor-not-allowed'
+                    : 'hover:-translate-y-2 hover:shadow-2xl active:scale-95'
+                  }
                    `}
-                   onClick={() => !isLocked && handleLevelSelect(level.id)}
-                 >
-                    {/* Icon Circle */}
-                    <div className={`
+                onClick={() => !isLocked && handleLevelSelect(level.id)}
+              >
+                {/* Icon Circle */}
+                <div className={`
                        w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shrink-0 shadow-inner transition-colors
-                       ${isCompleted 
-                          ? 'bg-green-500 text-white' 
-                          : isLocked 
-                            ? 'bg-gray-200 text-gray-400' 
-                            : isFinal 
-                              ? 'bg-orange-500 text-white animate-pulse' 
-                              : 'bg-blue-500 text-white'
-                        }
+                       ${isCompleted
+                    ? 'bg-green-500 text-white'
+                    : isLocked
+                      ? 'bg-gray-200 text-gray-400'
+                      : isFinal
+                        ? 'bg-orange-500 text-white animate-pulse'
+                        : 'bg-blue-500 text-white'
+                  }
                     `}>
-                       {isCompleted ? <CheckCircle size={32} /> : isLocked ? <Lock size={28} /> : level.id}
-                    </div>
-                    
-                    {/* Text Info */}
-                    <div className="flex-1 text-center md:text-left">
-                       <h3 className={`font-bold text-2xl mb-2 ${isFinal ? 'text-orange-900' : 'text-gray-800'}`}>
-                         {level.title}
-                       </h3>
-                       <p className={`font-medium text-base ${isFinal ? 'text-orange-800/80' : 'text-gray-500'}`}>
-                         {level.desc}
-                       </p>
-                    </div>
+                  {isCompleted ? <CheckCircle size={32} /> : isLocked ? <Lock size={28} /> : level.id}
+                </div>
 
-                    {/* Action Icon (Play or Status) */}
-                    <div className="hidden md:flex items-center justify-center">
-                      {!isLocked && !isCompleted && (
-                        <div className={`p-3 rounded-full ${isFinal ? 'bg-orange-200 text-orange-600' : 'bg-blue-100 text-blue-600'}`}>
-                          <Play size={32} fill="currentColor" />
-                        </div>
-                      )}
-                      {isCompleted && (
-                        <div className="text-green-600 font-bold bg-green-100 px-3 py-1 rounded-full text-sm">
-                          Concluído
-                        </div>
-                      )}
-                    </div>
-                 </div>
-               );
-             })}
-          </div>
-       </div>
+                {/* Text Info */}
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className={`font-bold text-2xl mb-2 ${isFinal ? 'text-orange-900' : 'text-gray-800'}`}>
+                    {level.title}
+                  </h3>
+                  <p className={`font-medium text-base ${isFinal ? 'text-orange-800/80' : 'text-gray-500'}`}>
+                    {level.desc}
+                  </p>
+                </div>
 
-       {showCelebration && <Celebration onClose={() => setShowCelebration(false)} />}
+                {/* Action Icon (Play or Status) */}
+                <div className="hidden md:flex items-center justify-center">
+                  {!isLocked && !isCompleted && (
+                    <div className={`p-3 rounded-full ${isFinal ? 'bg-orange-200 text-orange-600' : 'bg-blue-100 text-blue-600'}`}>
+                      <Play size={32} fill="currentColor" />
+                    </div>
+                  )}
+                  {isCompleted && (
+                    <div className="text-green-600 font-bold bg-green-100 px-3 py-1 rounded-full text-sm">
+                      Concluído
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {showCelebration && <Celebration onClose={() => setShowCelebration(false)} />}
     </div>
   );
 };
