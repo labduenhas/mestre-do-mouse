@@ -83,14 +83,22 @@ const App: React.FC = () => {
       onExit: () => setGameState(prev => ({ ...prev, view: 'map', activeLevelId: null }))
     };
 
-    switch (gameState.activeLevelId) {
-      case 1: return <Level1Click {...props} />;
-      case 2: return <Level2DoubleClick {...props} />;
-      case 3: return <Level3Drag {...props} />;
-      case 4: return <Level4Maze {...props} />;
-      case 5: return <Level5Mission {...props} />;
-      default: return <div>Nível não encontrado</div>;
-    }
+    const renderLevel = () => {
+      switch (gameState.activeLevelId) {
+        case 1: return <Level1Click {...props} />;
+        case 2: return <Level2DoubleClick {...props} />;
+        case 3: return <Level3Drag {...props} />;
+        case 4: return <Level4Maze {...props} />;
+        case 5: return <Level5Mission {...props} />;
+        default: return <div>Nível não encontrado</div>;
+      }
+    };
+
+    return (
+      <div className="w-full h-screen" onContextMenu={(e) => e.preventDefault()}>
+        {renderLevel()}
+      </div>
+    );
   }
 
   // Map View
