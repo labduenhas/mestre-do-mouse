@@ -3,6 +3,7 @@ import { AppSettings, LevelStats } from '../types';
 import { Button } from '../components/Button';
 import { playSound } from '../utils/sound';
 import { Ghost, Flag } from 'lucide-react';
+import { FullscreenButton } from '../components/FullscreenButton';
 
 interface Props {
   settings: AppSettings;
@@ -86,10 +87,10 @@ const MAZES = [
 export const Level4Maze: React.FC<Props> = ({ settings, onComplete, onExit, isMission = false }) => {
   const [phase, setPhase] = useState(isMission ? 4 : 0);
   const [attempts, setAttempts] = useState(0);
-  const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 }); 
-  const [isHolding, setIsHolding] = useState(false); 
+  const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
+  const [isHolding, setIsHolding] = useState(false);
   const [shake, setShake] = useState(false);
-  
+
   const startTime = useRef(Date.now());
   const TOTAL_PHASES = 8;
   const currentPath = MAZES[phase];
@@ -97,7 +98,7 @@ export const Level4Maze: React.FC<Props> = ({ settings, onComplete, onExit, isMi
   const endRect = currentPath[currentPath.length - 1];
 
   const isSafe = (xPct: number, yPct: number) => {
-    return currentPath.some(r => 
+    return currentPath.some(r =>
       xPct >= r.x && xPct <= r.x + r.w &&
       yPct >= r.y && yPct <= r.y + r.h
     );
@@ -106,51 +107,51 @@ export const Level4Maze: React.FC<Props> = ({ settings, onComplete, onExit, isMi
   const handlePointerMove = (e: React.PointerEvent) => {
     const xPct = (e.clientX / window.innerWidth) * 100;
     const yPct = (e.clientY / window.innerHeight) * 100;
-    
+
     setPlayerPos({ x: xPct, y: yPct });
 
     const inStart = xPct >= startRect.x && xPct <= startRect.x + startRect.w &&
-                    yPct >= startRect.y && yPct <= startRect.y + startRect.h;
+      yPct >= startRect.y && yPct <= startRect.y + startRect.h;
 
     const inEnd = xPct >= endRect.x && xPct <= endRect.x + endRect.w &&
-                  yPct >= endRect.y && yPct <= endRect.y + endRect.h;
+      yPct >= endRect.y && yPct <= endRect.y + endRect.h;
 
     if (!isHolding) {
-       if (inStart) {
-         setIsHolding(true); // Picked up!
-         playSound('pop');
-       }
-       return;
+      if (inStart) {
+        setIsHolding(true); // Picked up!
+        playSound('pop');
+      }
+      return;
     }
 
     if (!isSafe(xPct, yPct)) {
-       // Failed!
-       setIsHolding(false);
-       setAttempts(p => p + 1);
-       setShake(true);
-       setTimeout(() => setShake(false), 300);
-       playSound('error');
+      // Failed!
+      setIsHolding(false);
+      setAttempts(p => p + 1);
+      setShake(true);
+      setTimeout(() => setShake(false), 300);
+      playSound('error');
     } else if (inEnd) {
-       // Won Phase
-       setIsHolding(false);
-       playSound('success');
-       if (isMission) {
-          finishLevel();
-       } else if (phase < TOTAL_PHASES - 1) {
-          setPhase(p => p + 1);
-       } else {
-          finishLevel();
-       }
+      // Won Phase
+      setIsHolding(false);
+      playSound('success');
+      if (isMission) {
+        finishLevel();
+      } else if (phase < TOTAL_PHASES - 1) {
+        setPhase(p => p + 1);
+      } else {
+        finishLevel();
+      }
     }
   };
 
   const finishLevel = () => {
-     const timeSeconds = Math.round((Date.now() - startTime.current) / 1000);
-     onComplete({ attempts, timeSeconds, completed: true, score: 100 });
+    const timeSeconds = Math.round((Date.now() - startTime.current) / 1000);
+    onComplete({ attempts, timeSeconds, completed: true, score: 100 });
   };
 
   return (
-    <div 
+    <div
       className={`relative w-full h-full bg-slate-800 overflow-hidden cursor-none touch-none ${shake ? 'animate-[shake_0.2s_ease-in-out_2]' : ''}`}
       onPointerMove={handlePointerMove}
     >
@@ -162,7 +163,12 @@ export const Level4Maze: React.FC<Props> = ({ settings, onComplete, onExit, isMi
           {!isMission && <div className="text-white font-bold">Fase {phase + 1}/{TOTAL_PHASES}</div>}
         </div>
         <div className="pointer-events-auto">
-             {!isMission && <Button size="sm" variant="secondary" onClick={onExit}>Sair</Button>}
+          {!isMission && (
+            <div className="flex gap-2">
+              <FullscreenButton />
+              <Button size="sm" variant="secondary" onClick={onExit}>Sair</Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -175,18 +181,18 @@ export const Level4Maze: React.FC<Props> = ({ settings, onComplete, onExit, isMi
       ))}
 
       {/* Start Zone Indicator */}
-      <div 
+      <div
         className={`absolute flex items-center justify-center font-bold text-white/50 pointer-events-none transition-opacity ${isHolding ? 'opacity-20' : 'opacity-100 animate-pulse'}`}
         style={{ left: `${startRect.x}%`, top: `${startRect.y}%`, width: `${startRect.w}%`, height: `${startRect.h}%` }}
       >
         <div className="text-center">
-           <div>INÍCIO</div>
-           {!isHolding && <div className="text-xs text-yellow-300">Passe aqui</div>}
+          <div>INÍCIO</div>
+          {!isHolding && <div className="text-xs text-yellow-300">Passe aqui</div>}
         </div>
       </div>
 
       {/* End Zone */}
-      <div 
+      <div
         className="absolute flex items-center justify-center font-bold text-green-900 bg-green-400 border-4 border-green-500 animate-pulse pointer-events-none shadow-[0_0_20px_rgba(74,222,128,0.5)]"
         style={{ left: `${endRect.x}%`, top: `${endRect.y}%`, width: `${endRect.w}%`, height: `${endRect.h}%` }}
       >
@@ -194,10 +200,10 @@ export const Level4Maze: React.FC<Props> = ({ settings, onComplete, onExit, isMi
       </div>
 
       {/* Player Avatar */}
-      <div 
+      <div
         className="absolute pointer-events-none transition-all duration-75 ease-linear z-50"
-        style={{ 
-          left: `${playerPos.x}%`, 
+        style={{
+          left: `${playerPos.x}%`,
           top: `${playerPos.y}%`,
           transform: 'translate(-50%, -50%)'
         }}

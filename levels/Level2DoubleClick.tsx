@@ -3,6 +3,7 @@ import { AppSettings, LevelStats } from '../types';
 import { Button } from '../components/Button';
 import { playSound } from '../utils/sound';
 import { Box, Lock, Sparkles } from 'lucide-react';
+import { FullscreenButton } from '../components/FullscreenButton';
 
 interface Props {
   settings: AppSettings;
@@ -29,12 +30,12 @@ export const Level2DoubleClick: React.FC<Props> = ({ settings, onComplete, onExi
   const [phase, setPhase] = useState(isMission ? 3 : 1);
   const [chests, setChests] = useState<Chest[]>([]);
   const [layoutStyle, setLayoutStyle] = useState(''); // Randomize flex logic
-  
+
   const [attempts, setAttempts] = useState(0);
   const [clickCount, setClickCount] = useState(0);
   const [lastClickTime, setLastClickTime] = useState(0);
   const [shakeId, setShakeId] = useState<number | null>(null);
-  
+
   const startTime = useRef(Date.now());
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -53,11 +54,11 @@ export const Level2DoubleClick: React.FC<Props> = ({ settings, onComplete, onExi
 
     const count = Math.ceil(phase / 2);
     const newChests: Chest[] = [];
-    
+
     // Shuffle colors start index to ensure variety even with same count
     const colorStart = Math.floor(Math.random() * CHEST_COLORS.length);
 
-    for(let i=0; i<count; i++) {
+    for (let i = 0; i < count; i++) {
       newChests.push({
         id: i,
         isOpen: false,
@@ -70,7 +71,7 @@ export const Level2DoubleClick: React.FC<Props> = ({ settings, onComplete, onExi
   const handlePointerDown = (e: React.PointerEvent, id: number) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const chest = chests.find(c => c.id === id);
     if (!chest || chest.isOpen) return;
 
@@ -102,26 +103,26 @@ export const Level2DoubleClick: React.FC<Props> = ({ settings, onComplete, onExi
     setChests(updated);
 
     if (updated.every(c => c.isOpen)) {
-       playSound('success');
-       if (isMission) {
-          finishLevel();
-       } else if (phase < TOTAL_PHASES) {
-          setTimeout(() => setPhase(p => p + 1), 1000);
-       } else {
-          finishLevel();
-       }
+      playSound('success');
+      if (isMission) {
+        finishLevel();
+      } else if (phase < TOTAL_PHASES) {
+        setTimeout(() => setPhase(p => p + 1), 1000);
+      } else {
+        finishLevel();
+      }
     }
   };
 
   const finishLevel = () => {
     const timeSeconds = Math.round((Date.now() - startTime.current) / 1000);
     setTimeout(() => {
-        onComplete({
-          attempts,
-          timeSeconds,
-          completed: true,
-          score: 100
-        });
+      onComplete({
+        attempts,
+        timeSeconds,
+        completed: true,
+        score: 100
+      });
     }, 1000);
   };
 
@@ -129,18 +130,23 @@ export const Level2DoubleClick: React.FC<Props> = ({ settings, onComplete, onExi
     <div className="relative w-full h-full bg-indigo-50 flex flex-col items-center overflow-hidden">
       <div className="absolute top-0 left-0 p-4 w-full flex justify-between items-center bg-white/80 z-10">
         <div>
-           <h2 className="text-2xl font-bold text-indigo-900">
-             {isMission ? 'Missão: Duplo Clique' : 'Nível 2: O Tesouro'}
-           </h2>
-           {!isMission && <div className="text-sm font-bold text-indigo-600">Fase {phase}/{TOTAL_PHASES}</div>}
+          <h2 className="text-2xl font-bold text-indigo-900">
+            {isMission ? 'Missão: Duplo Clique' : 'Nível 2: O Tesouro'}
+          </h2>
+          {!isMission && <div className="text-sm font-bold text-indigo-600">Fase {phase}/{TOTAL_PHASES}</div>}
         </div>
-        {!isMission && <Button size="sm" variant="secondary" onClick={onExit}>Sair</Button>}
+        {!isMission && (
+          <div className="flex gap-2">
+            <FullscreenButton />
+            <Button size="sm" variant="secondary" onClick={onExit}>Sair</Button>
+          </div>
+        )}
       </div>
 
       <div className="mt-24 mb-4 text-center px-4 w-full">
         <p className="text-xl text-indigo-800 font-bold">
-          {settings.inputMethodHint === 'trackpad' 
-            ? 'Toque-toque rápido!' 
+          {settings.inputMethodHint === 'trackpad'
+            ? 'Toque-toque rápido!'
             : 'Clique-clique rápido!'}
         </p>
       </div>
@@ -148,7 +154,7 @@ export const Level2DoubleClick: React.FC<Props> = ({ settings, onComplete, onExi
       {/* Flexible Grid Container that changes alignment */}
       <div className={`flex flex-wrap ${layoutStyle} items-center content-center gap-12 p-8 w-full max-w-5xl h-full pb-20`}>
         {chests.map(chest => (
-          <div 
+          <div
             key={chest.id}
             className={`
               relative w-40 h-40 md:w-56 md:h-56 cursor-pointer transition-transform
@@ -160,13 +166,13 @@ export const Level2DoubleClick: React.FC<Props> = ({ settings, onComplete, onExi
             {chest.isOpen ? (
               <>
                 <div className="absolute inset-0 flex items-center justify-center animate-bounce">
-                    <Box size={180} className="text-yellow-600 fill-yellow-200 opacity-50" strokeWidth={1.5} />
+                  <Box size={180} className="text-yellow-600 fill-yellow-200 opacity-50" strokeWidth={1.5} />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center -mt-8 z-10">
-                    <Sparkles size={100} className="text-yellow-400 fill-yellow-200 animate-spin-slow" />
+                  <Sparkles size={100} className="text-yellow-400 fill-yellow-200 animate-spin-slow" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center z-20">
-                    <span className="text-5xl drop-shadow-md">💎</span>
+                  <span className="text-5xl drop-shadow-md">💎</span>
                 </div>
               </>
             ) : (
@@ -180,7 +186,7 @@ export const Level2DoubleClick: React.FC<Props> = ({ settings, onComplete, onExi
           </div>
         ))}
       </div>
-      
+
       <style>{`
         @keyframes wiggle {
           0%, 100% { transform: rotate(-3deg); }

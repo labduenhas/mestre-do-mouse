@@ -3,12 +3,13 @@ import { AppSettings, LevelStats } from '../types';
 import { Button } from '../components/Button';
 import { playSound } from '../utils/sound';
 import { Circle, Cloud, Star, Heart, Triangle, Hexagon, Square, Smile } from 'lucide-react';
+import { FullscreenButton } from '../components/FullscreenButton';
 
 interface Props {
   settings: AppSettings;
   onComplete: (stats: LevelStats) => void;
   onExit: () => void;
-  isMission?: boolean; 
+  isMission?: boolean;
 }
 
 interface Target {
@@ -34,9 +35,9 @@ const PHASES = [
 export const Level1Click: React.FC<Props> = ({ settings, onComplete, onExit, isMission = false }) => {
   const [phaseIndex, setPhaseIndex] = useState(isMission ? Math.floor(Math.random() * PHASES.length) : 0);
   const [targets, setTargets] = useState<Target[]>([]);
-  const [score, setScore] = useState(0); 
+  const [score, setScore] = useState(0);
   const [totalAttempts, setTotalAttempts] = useState(0);
-  
+
   const startTime = useRef(Date.now());
   const currentPhase = PHASES[phaseIndex];
 
@@ -51,7 +52,7 @@ export const Level1Click: React.FC<Props> = ({ settings, onComplete, onExit, isM
     for (let i = 0; i < currentPhase.count; i++) {
       newTargets.push({
         id: i,
-        x: 10 + Math.random() * 80, 
+        x: 10 + Math.random() * 80,
         y: 15 + Math.random() * 70,
         color: COLORS[Math.floor(Math.random() * COLORS.length)]
       });
@@ -68,7 +69,7 @@ export const Level1Click: React.FC<Props> = ({ settings, onComplete, onExit, isM
   const handleTargetClick = (e: React.PointerEvent, id: number) => {
     e.stopPropagation();
     playSound('pop');
-    
+
     const newTargets = targets.filter(t => t.id !== id);
     setTargets(newTargets);
     setScore(s => s + 1);
@@ -76,11 +77,11 @@ export const Level1Click: React.FC<Props> = ({ settings, onComplete, onExit, isM
     if (newTargets.length === 0) {
       playSound('success');
       if (isMission) {
-         finishLevel();
+        finishLevel();
       } else if (phaseIndex < PHASES.length - 1) {
-         setTimeout(() => setPhaseIndex(p => p + 1), 800);
+        setTimeout(() => setPhaseIndex(p => p + 1), 800);
       } else {
-         finishLevel();
+        finishLevel();
       }
     }
   };
@@ -104,29 +105,34 @@ export const Level1Click: React.FC<Props> = ({ settings, onComplete, onExit, isM
     <div className="relative w-full h-full bg-blue-50 overflow-hidden" onPointerUp={handleBackgroundClick}>
       <div className="absolute top-0 left-0 p-4 w-full flex justify-between items-center bg-white/80 backdrop-blur-sm shadow-sm z-10">
         <div>
-           <h2 className="text-2xl font-bold text-blue-900">
-             {isMission ? 'Missão: Clique' : `Nível 1: ${currentPhase.name}`}
-           </h2>
-           {!isMission && <div className="text-sm text-blue-600 font-bold">Fase {phaseIndex + 1}/{PHASES.length}</div>}
+          <h2 className="text-2xl font-bold text-blue-900">
+            {isMission ? 'Missão: Clique' : `Nível 1: ${currentPhase.name}`}
+          </h2>
+          {!isMission && <div className="text-sm text-blue-600 font-bold">Fase {phaseIndex + 1}/{PHASES.length}</div>}
         </div>
         <div className="text-xl font-bold text-green-600">{score}/{currentPhase.count}</div>
-        {!isMission && <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onExit(); }}>Sair</Button>}
+        {!isMission && (
+          <div className="flex gap-2">
+            <FullscreenButton />
+            <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onExit(); }}>Sair</Button>
+          </div>
+        )}
       </div>
 
       {targets.map(t => (
         <div
           key={t.id}
           className={`absolute flex items-center justify-center transition-all duration-500 ease-out cursor-pointer hover:scale-110 active:scale-95 animate-bounce ${sizeClass}`}
-          style={{ 
-            left: `${t.x}%`, 
-            top: `${t.y}%`, 
+          style={{
+            left: `${t.x}%`,
+            top: `${t.y}%`,
             animationDuration: '3s',
-            transform: currentPhase.rotate ? 'rotate(180deg)' : 'none' 
+            transform: currentPhase.rotate ? 'rotate(180deg)' : 'none'
           }}
           onPointerDown={(e) => handleTargetClick(e, t.id)}
         >
-          <Icon 
-            className={`w-full h-full ${t.color} fill-current drop-shadow-lg`} 
+          <Icon
+            className={`w-full h-full ${t.color} fill-current drop-shadow-lg`}
             strokeWidth={1.5}
           />
         </div>
