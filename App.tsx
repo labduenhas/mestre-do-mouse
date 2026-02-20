@@ -11,6 +11,8 @@ import { Level3Drag } from './levels/Level3Drag';
 import { Level4Maze } from './levels/Level4Maze';
 import { Level5Mission } from './levels/Level5Mission';
 import { Settings, Play, CheckCircle, Lock } from 'lucide-react';
+import { DevicePickerModal } from './components/DevicePickerModal';
+import { InputMethod } from './types';
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
@@ -20,6 +22,7 @@ const App: React.FC = () => {
   });
 
   const [showCelebration, setShowCelebration] = useState(false);
+  const [modalKey, setModalKey] = useState(0);
 
   useEffect(() => {
     const loaded = loadProfile();
@@ -63,6 +66,16 @@ const App: React.FC = () => {
   const handleResetProgress = () => {
     const updatedProfile = { ...gameState.profile, progress: {} };
     saveState(updatedProfile);
+    localStorage.removeItem('deviceSelected');
+    setModalKey(prev => prev + 1); // Force remount of the modal
+  };
+
+  const handleDeviceSelect = (method: InputMethod) => {
+    handleSettingsUpdate({
+      ...gameState.profile.settings,
+      inputMethodHint: method,
+      stickyDrag: method === 'trackpad'
+    });
   };
 
   if (gameState.view === 'teacher') {
@@ -185,6 +198,7 @@ const App: React.FC = () => {
         </div>
       </div>
 
+      <DevicePickerModal key={modalKey} onSelect={handleDeviceSelect} />
       {showCelebration && <Celebration onClose={() => setShowCelebration(false)} />}
     </div>
   );
