@@ -48,6 +48,21 @@ const PIECE_COLORS = [
     { bg: 'bg-teal-400', label: '🐢' },
 ];
 
+const COLOR_HEX_MAP: Record<string, string> = {
+    'bg-red-400': '#f87171',
+    'bg-blue-400': '#60a5fa',
+    'bg-green-400': '#4ade80',
+    'bg-yellow-400': '#facc15',
+    'bg-purple-400': '#c084fc',
+    'bg-pink-400': '#f472b6',
+    'bg-orange-400': '#fb923c',
+    'bg-cyan-400': '#22d3ee',
+    'bg-lime-400': '#a3e635',
+    'bg-rose-400': '#fb7185',
+    'bg-indigo-400': '#818cf8',
+    'bg-teal-400': '#2dd4bf',
+};
+
 export const Level8Puzzle: React.FC<Props> = ({ settings, onComplete, onExit, isMission = false }) => {
     const [phaseIndex, setPhaseIndex] = useState(isMission ? Math.floor(Math.random() * PUZZLE_CONFIGS.length) : 0);
     const [pieces, setPieces] = useState<PuzzlePiece[]>([]);
@@ -290,19 +305,31 @@ export const Level8Puzzle: React.FC<Props> = ({ settings, onComplete, onExit, is
                 Array.from({ length: config.cols }).map((_, c) => {
                     const pos = getTargetPosition(r, c);
                     const glowClass = getSlotGlow(r, c);
+                    const slotPiece = pieces.find(p => p.targetRow === r && p.targetCol === c);
+                    const isPlaced = slotPiece?.placed;
+                    const pieceHex = slotPiece ? COLOR_HEX_MAP[slotPiece.color] || '#99f6e4' : '#99f6e4';
                     return (
                         <div
                             key={`target-${r}-${c}`}
-                            className={`absolute border-2 border-dashed rounded-xl transition-all duration-200
-                ${glowClass || 'border-teal-300 bg-teal-100/40'}
+                            className={`absolute rounded-xl transition-all duration-200 flex items-center justify-center
+                ${glowClass || 'bg-transparent'}
               `}
                             style={{
                                 left: pos.x,
                                 top: pos.y,
                                 width: cellSize - 6,
                                 height: cellSize - 6,
+                                border: `2.5px solid ${pieceHex}`,
+                                borderStyle: isPlaced ? 'solid' : 'solid',
+                                opacity: isPlaced ? 0 : 1,
                             }}
-                        />
+                        >
+                            {!isPlaced && slotPiece && (
+                                <span style={{ fontSize: cellSize * 0.38, opacity: 0.18 }} className="select-none pointer-events-none">
+                                    {slotPiece.label}
+                                </span>
+                            )}
+                        </div>
                     );
                 })
             )}

@@ -122,11 +122,11 @@ const CircuitPath: React.FC<{ rects: Rect[] }> = ({ rects }) => {
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
-            style={{ filter: 'drop-shadow(0 0 6px rgba(34, 211, 238, 0.5))' }}
+            style={{ filter: 'drop-shadow(0 0 6px rgba(79, 70, 229, 0.45))' }}
         >
             <path
                 d={d}
-                fill="#155e75"
+                fill="#4F46E5"
                 stroke="none"
                 fillRule="nonzero"
             />
@@ -200,15 +200,15 @@ export const Level9Circuit: React.FC<Props> = ({ settings, onComplete, onExit, i
 
     return (
         <div
-            className={`relative w-full h-full bg-gray-900 overflow-hidden cursor-none touch-none ${shake ? 'animate-[shake_0.2s_ease-in-out_2]' : ''}`}
+            className={`relative w-full h-full bg-slate-100 overflow-hidden cursor-none touch-none ${shake ? 'animate-[shake_0.2s_ease-in-out_2]' : ''}`}
             onPointerMove={handlePointerMove}
         >
             <div className="absolute top-0 left-0 p-4 w-full flex justify-between items-center z-20 pointer-events-none">
                 <div>
-                    <h2 className="text-2xl font-bold text-cyan-300 drop-shadow-md">
+                    <h2 className="text-2xl font-bold text-indigo-800 drop-shadow-md">
                         {isMission ? 'Missão: Circuito' : 'Circuito do Robô'}
                     </h2>
-                    {!isMission && <div className="text-cyan-400 font-bold">Fase {phase + 1}/{TOTAL_PHASES}</div>}
+                    {!isMission && <div className="text-indigo-600 font-bold">Fase {phase + 1}/{TOTAL_PHASES}</div>}
                 </div>
                 <div className="pointer-events-auto">
                     {!isMission && (
@@ -225,18 +225,18 @@ export const Level9Circuit: React.FC<Props> = ({ settings, onComplete, onExit, i
 
             {/* Start Zone */}
             <div
-                className={`absolute flex items-center justify-center font-bold text-cyan-200/60 pointer-events-none transition-opacity z-10 ${isHolding ? 'opacity-20' : 'opacity-100 animate-pulse'}`}
+                className={`absolute flex items-center justify-center font-bold text-white pointer-events-none transition-opacity z-10 ${isHolding ? 'opacity-20' : 'opacity-100 animate-pulse'}`}
                 style={{ left: `${startRect.x}%`, top: `${startRect.y}%`, width: `${startRect.w}%`, height: `${startRect.h}%` }}
             >
                 <div className="text-center">
                     <div className="text-sm">INÍCIO</div>
-                    {!isHolding && <div className="text-xs text-green-400">Passe aqui</div>}
+                    {!isHolding && <div className="text-xs text-emerald-200">Passe aqui</div>}
                 </div>
             </div>
 
             {/* End Zone */}
             <div
-                className="absolute flex items-center justify-center font-bold text-green-900 bg-green-500/80 border-2 border-green-400 animate-pulse pointer-events-none shadow-[0_0_15px_rgba(74,222,128,0.6)] z-10"
+                className="absolute flex items-center justify-center font-bold text-amber-900 bg-amber-400 border-2 border-amber-500 animate-pulse pointer-events-none shadow-[0_0_15px_rgba(245,158,11,0.6)] z-10"
                 style={{ left: `${endRect.x}%`, top: `${endRect.y}%`, width: `${endRect.w}%`, height: `${endRect.h}%` }}
             >
                 <Flag size={20} />
@@ -252,8 +252,8 @@ export const Level9Circuit: React.FC<Props> = ({ settings, onComplete, onExit, i
                 }}
             >
                 <div className={`relative ${isHolding ? 'scale-100' : 'scale-50 grayscale opacity-50'}`}>
-                    <Bot size={40} className="text-cyan-300 drop-shadow-[0_0_10px_rgba(0,220,255,0.8)]" />
-                    {!isHolding && <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-32 bg-red-500/90 text-white text-xs p-1 rounded text-center">Volte ao início!</div>}
+                    <Bot size={40} className="text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]" />
+                    {!isHolding && <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-32 bg-red-500 text-white text-xs p-1 rounded text-center">Volte ao início!</div>}
                 </div>
             </div>
 

@@ -32,14 +32,14 @@ const BUBBLE_COLORS = [
 ];
 
 const PHASE_CONFIG = [
-    { count: 3, speed: 0.105, minSize: 105 },
-    { count: 4, speed: 0.12, minSize: 98 },
-    { count: 4, speed: 0.14, minSize: 90 },
-    { count: 5, speed: 0.16, minSize: 83 },
-    { count: 5, speed: 0.175, minSize: 75 },
-    { count: 6, speed: 0.19, minSize: 72 },
-    { count: 7, speed: 0.21, minSize: 68 },
-    { count: 8, speed: 0.23, minSize: 63 },
+    { count: 3, speed: 0.084, minSize: 121 },
+    { count: 4, speed: 0.096, minSize: 113 },
+    { count: 4, speed: 0.105, minSize: 104 },
+    { count: 5, speed: 0.113, minSize: 95 },
+    { count: 5, speed: 0.121, minSize: 86 },
+    { count: 6, speed: 0.129, minSize: 83 },
+    { count: 7, speed: 0.136, minSize: 78 },
+    { count: 8, speed: 0.143, minSize: 72 },
 ];
 
 export const Level7Bubbles: React.FC<Props> = ({ settings, onComplete, onExit, isMission = false }) => {
