@@ -172,13 +172,21 @@ export const Level4Maze: React.FC<Props> = ({ settings, onComplete, onExit, isMi
         </div>
       </div>
 
-      {currentPath.map((r, i) => (
-        <div
-          key={i}
-          className="absolute bg-indigo-500 border-2 border-indigo-400/50 shadow-inner"
-          style={{ left: `${r.x}%`, top: `${r.y}%`, width: `${r.w}%`, height: `${r.h}%` }}
+      {/* Unified maze path — single SVG shape, no internal seams */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ filter: 'drop-shadow(0 0 8px rgba(129, 140, 248, 0.5))' }}
+      >
+        <path
+          d={currentPath.map(r => `M${r.x},${r.y} h${r.w} v${r.h} h${-r.w}Z`).join(' ')}
+          fill="#6366f1"
+          stroke="none"
+          fillRule="nonzero"
         />
-      ))}
+      </svg>
 
       {/* Start Zone Indicator */}
       <div

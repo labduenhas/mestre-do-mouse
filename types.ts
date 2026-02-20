@@ -7,6 +7,7 @@ export interface AppSettings {
   targetSizeMultiplier: number; // 1.0 to 2.0
   highContrast: boolean;
   inputMethodHint: InputMethod; // Detected or manually set
+  devMode: boolean; // DEV: unlock all levels and phases
 }
 
 export interface LevelStats {
@@ -17,15 +18,32 @@ export interface LevelStats {
 }
 
 export interface UserProfile {
-  // Removed id, name, avatar for single-user mode
-  progress: Record<number, LevelStats>; // Level ID -> Stats
+  progress: Record<string, LevelStats>; // Key = "phase-level", e.g. "1-1", "2-3"
   settings: AppSettings;
+  currentPhase: number; // 1 or 2 (the highest unlocked phase)
 }
 
 export interface GameState {
   profile: UserProfile;
   view: 'map' | 'game' | 'teacher';
+  activePhaseId: number | null;
   activeLevelId: number | null;
+}
+
+export interface LevelInfo {
+  id: number;
+  title: string;
+  desc: string;
+  icon: string;
+  isFinal?: boolean;
+}
+
+export interface PhaseInfo {
+  id: number;
+  title: string;
+  subtitle: string;
+  color: string; // tailwind color prefix, e.g. "green", "purple"
+  levels: LevelInfo[];
 }
 
 export enum GameEvent {

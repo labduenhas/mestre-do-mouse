@@ -1,5 +1,6 @@
 import React from 'react';
 import { AppSettings, UserProfile, LevelStats } from '../types';
+import { PHASES_INFO } from '../constants';
 import { Button } from './Button';
 import { Settings, Info, MousePointer2 } from 'lucide-react';
 
@@ -112,6 +113,27 @@ export const TeacherPanel: React.FC<Props> = ({ profile, onUpdateSettings, onClo
                   onChange={(e) => handleChange('targetSizeMultiplier', parseFloat(e.target.value))}
                 />
               </div>
+
+              {/* Dev Mode */}
+              <div className="pt-4 mt-4 border-t border-gray-200">
+                <div className="flex items-center justify-between">
+                  <label className="font-semibold text-gray-700 flex items-center gap-2">
+                    <span className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded">DEV</span>
+                    Desbloquear Tudo
+                  </label>
+                  <div
+                    onClick={() => handleChange('devMode', !settings.devMode)}
+                    className={`relative w-12 h-6 rounded-full cursor-pointer transition-colors ${settings.devMode ? 'bg-yellow-400' : 'bg-gray-300'}`}
+                  >
+                    <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${settings.devMode ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  {settings.devMode
+                    ? '🔓 Todas as fases e exercícios estão desbloqueados.'
+                    : 'Quando ligado, pula todas as travas de progressão.'}
+                </p>
+              </div>
             </div>
           </section>
 
@@ -120,21 +142,37 @@ export const TeacherPanel: React.FC<Props> = ({ profile, onUpdateSettings, onClo
               <Info /> Relatório de Progresso
             </h3>
 
-            <div className="space-y-4">
-              {Object.entries(profile.progress).length === 0 ? (
+            <div className="space-y-6">
+              {Object.keys(profile.progress).length === 0 ? (
                 <div className="text-gray-500 italic">Nenhuma atividade registrada ainda.</div>
               ) : (
-                Object.entries(profile.progress).map(([lvlId, rawStats]) => {
-                  const stats = rawStats as LevelStats;
+                PHASES_INFO.map(phase => {
+                  const phaseEntries = phase.levels
+                    .map(level => {
+                      const key = `${phase.id}-${level.id}`;
+                      const stats = profile.progress[key];
+                      return stats ? { level, stats } : null;
+                    })
+                    .filter(Boolean) as { level: { id: number; title: string }; stats: LevelStats }[];
+
+                  if (phaseEntries.length === 0) return null;
+
                   return (
-                    <div key={lvlId} className="bg-white p-3 rounded-lg shadow-sm">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="font-bold text-gray-700">Nível {lvlId}</span>
-                        <span className="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded">Concluído</span>
-                      </div>
-                      <div className="text-sm text-gray-600 grid grid-cols-2 gap-2">
-                        <div>Tempo: {stats.timeSeconds}s</div>
-                        <div>Tentativas Erros: {stats.attempts}</div>
+                    <div key={phase.id}>
+                      <h4 className="font-bold text-blue-800 text-sm uppercase mb-2">{phase.title} — {phase.subtitle}</h4>
+                      <div className="space-y-2">
+                        {phaseEntries.map(({ level, stats }) => (
+                          <div key={level.id} className="bg-white p-3 rounded-lg shadow-sm">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="font-bold text-gray-700">{level.title}</span>
+                              <span className="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded">Concluído</span>
+                            </div>
+                            <div className="text-sm text-gray-600 grid grid-cols-2 gap-2">
+                              <div>Tempo: {stats.timeSeconds}s</div>
+                              <div>Tentativas Erros: {stats.attempts}</div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   );
@@ -163,7 +201,7 @@ export const TeacherPanel: React.FC<Props> = ({ profile, onUpdateSettings, onClo
             </div>
           </section>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };

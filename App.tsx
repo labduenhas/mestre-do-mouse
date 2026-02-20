@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { GameState, UserProfile, LevelStats, AppSettings } from './types';
-import { INITIAL_PROFILE, LEVEL_INFO } from './constants';
+import { GameState, UserProfile, LevelStats, AppSettings, InputMethod } from './types';
+import { INITIAL_PROFILE, PHASES_INFO } from './constants';
 import { loadProfile, saveProfile } from './services/storage';
 import { Button } from './components/Button';
 import { TeacherPanel } from './components/TeacherPanel';
 import { Celebration } from './components/Celebration';
+import { DevicePickerModal } from './components/DevicePickerModal';
 import { Level1Click } from './levels/Level1Click';
 import { Level2DoubleClick } from './levels/Level2DoubleClick';
 import { Level3Drag } from './levels/Level3Drag';
 import { Level4Maze } from './levels/Level4Maze';
 import { Level5Mission } from './levels/Level5Mission';
-import { Settings, Play, CheckCircle, Lock } from 'lucide-react';
-import { DevicePickerModal } from './components/DevicePickerModal';
-import { InputMethod } from './types';
+import { Level6PixelArt } from './levels/Level6PixelArt';
+import { Level7Bubbles } from './levels/Level7Bubbles';
+import { Level8Puzzle } from './levels/Level8Puzzle';
+import { Level9Circuit } from './levels/Level9Circuit';
+import { Level10Mission } from './levels/Level10Mission';
+import { Settings, Play, CheckCircle, Lock, ChevronLeft, ChevronRight, Trophy, Star } from 'lucide-react';
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
     profile: INITIAL_PROFILE,
-    view: 'map', // Start directly on map
+    view: 'map',
+    activePhaseId: null,
     activeLevelId: null
   });
 
   const [showCelebration, setShowCelebration] = useState(false);
   const [modalKey, setModalKey] = useState(0);
+  const [selectedPhaseIndex, setSelectedPhaseIndex] = useState(0);
 
   useEffect(() => {
     const loaded = loadProfile();
@@ -34,27 +40,50 @@ const App: React.FC = () => {
     setGameState(prev => ({ ...prev, profile: newProfile }));
   };
 
-  const handleLevelSelect = (id: number) => {
-    if (id > 1) {
-      const prevLevel = gameState.profile.progress[id - 1];
-      if (!prevLevel || !prevLevel.completed) return;
-    }
-    setGameState(prev => ({ ...prev, activeLevelId: id, view: 'game' }));
+  const isPhaseUnlocked = (phaseId: number): boolean => {
+    if (gameState.profile.settings.devMode) return true;
+    if (phaseId === 1) return true;
+    // Phase N is unlocked if the final level of Phase N-1 is completed
+    const prevPhase = PHASES_INFO.find(p => p.id === phaseId - 1);
+    if (!prevPhase) return false;
+    const finalLevel = prevPhase.levels[prevPhase.levels.length - 1];
+    const key = `${phaseId - 1}-${finalLevel.id}`;
+    return !!gameState.profile.progress[key]?.completed;
+  };
+
+  const isLevelUnlocked = (phaseId: number, levelIndex: number): boolean => {
+    if (gameState.profile.settings.devMode) return true;
+    if (levelIndex === 0) return isPhaseUnlocked(phaseId);
+    const phase = PHASES_INFO.find(p => p.id === phaseId);
+    if (!phase) return false;
+    const prevLevel = phase.levels[levelIndex - 1];
+    const key = `${phaseId}-${prevLevel.id}`;
+    return !!gameState.profile.progress[key]?.completed;
+  };
+
+  const handleLevelSelect = (phaseId: number, levelId: number) => {
+    setGameState(prev => ({
+      ...prev,
+      activePhaseId: phaseId,
+      activeLevelId: levelId,
+      view: 'game'
+    }));
   };
 
   const handleLevelComplete = (stats: LevelStats) => {
-    if (!gameState.activeLevelId) return;
+    if (!gameState.activePhaseId || !gameState.activeLevelId) return;
 
+    const key = `${gameState.activePhaseId}-${gameState.activeLevelId}`;
     const updatedProfile = {
       ...gameState.profile,
       progress: {
         ...gameState.profile.progress,
-        [gameState.activeLevelId]: stats
+        [key]: stats
       }
     };
 
     saveState(updatedProfile);
-    setGameState(prev => ({ ...prev, view: 'map', activeLevelId: null }));
+    setGameState(prev => ({ ...prev, view: 'map', activePhaseId: null, activeLevelId: null }));
     setShowCelebration(true);
   };
 
@@ -67,7 +96,7 @@ const App: React.FC = () => {
     const updatedProfile = { ...gameState.profile, progress: {} };
     saveState(updatedProfile);
     localStorage.removeItem('deviceSelected');
-    setModalKey(prev => prev + 1); // Force remount of the modal
+    setModalKey(prev => prev + 1);
   };
 
   const handleDeviceSelect = (method: InputMethod) => {
@@ -78,6 +107,7 @@ const App: React.FC = () => {
     });
   };
 
+  // Teacher Panel View
   if (gameState.view === 'teacher') {
     return (
       <TeacherPanel
@@ -89,11 +119,12 @@ const App: React.FC = () => {
     );
   }
 
+  // Game View
   if (gameState.view === 'game' && gameState.activeLevelId) {
     const props = {
       settings: gameState.profile.settings,
       onComplete: handleLevelComplete,
-      onExit: () => setGameState(prev => ({ ...prev, view: 'map', activeLevelId: null }))
+      onExit: () => setGameState(prev => ({ ...prev, view: 'map', activePhaseId: null, activeLevelId: null }))
     };
 
     const renderLevel = () => {
@@ -103,6 +134,11 @@ const App: React.FC = () => {
         case 3: return <Level3Drag {...props} />;
         case 4: return <Level4Maze {...props} />;
         case 5: return <Level5Mission {...props} />;
+        case 6: return <Level6PixelArt {...props} />;
+        case 7: return <Level7Bubbles {...props} />;
+        case 8: return <Level8Puzzle {...props} />;
+        case 9: return <Level9Circuit {...props} />;
+        case 10: return <Level10Mission {...props} />;
         default: return <div>Nível não encontrado</div>;
       }
     };
@@ -115,8 +151,18 @@ const App: React.FC = () => {
   }
 
   // Map View
+  const currentPhase = PHASES_INFO[selectedPhaseIndex];
+  const phaseUnlocked = isPhaseUnlocked(currentPhase.id);
+
+  const phaseColors: Record<string, { bg: string; text: string; border: string; accent: string; light: string }> = {
+    green: { bg: 'bg-green-50', text: 'text-green-800', border: 'border-green-200', accent: 'bg-green-500', light: 'bg-green-100' },
+    purple: { bg: 'bg-purple-50', text: 'text-purple-800', border: 'border-purple-200', accent: 'bg-purple-500', light: 'bg-purple-100' },
+  };
+
+  const colors = phaseColors[currentPhase.color] || phaseColors.green;
+
   return (
-    <div className="min-h-screen bg-green-50 flex flex-col">
+    <div className={`min-h-screen ${colors.bg} flex flex-col`}>
       <header className="p-4 bg-white shadow-sm flex justify-between items-center z-10 sticky top-0">
         <div className="flex items-center gap-3">
           <span className="text-3xl">🎓</span>
@@ -129,73 +175,126 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center justify-center">
-        <h2 className="text-4xl font-bold text-green-800 mb-8 drop-shadow-sm text-center">Mapa de Fases</h2>
+      {/* Phase Selector */}
+      <div className="flex items-center justify-center gap-4 py-4 px-4">
+        <button
+          className={`p-2 rounded-full transition-all ${selectedPhaseIndex > 0 ? 'bg-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95' : 'opacity-30 cursor-not-allowed'}`}
+          onClick={() => selectedPhaseIndex > 0 && setSelectedPhaseIndex(p => p - 1)}
+          disabled={selectedPhaseIndex === 0}
+        >
+          <ChevronLeft size={28} className="text-gray-600" />
+        </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl px-4">
-          {LEVEL_INFO.map((level, idx) => {
-            const isCompleted = !!gameState.profile.progress[level.id]?.completed;
-            const isLocked = idx > 0 && !gameState.profile.progress[level.id - 1]?.completed;
-            const isFinal = level.id === 5;
-
-            return (
-              <div
-                key={level.id}
-                className={`
-                     relative rounded-3xl p-6 border-b-8 shadow-xl cursor-pointer transform transition-all duration-300 flex flex-col md:flex-row items-center gap-6
-                     ${isFinal
-                    ? 'md:col-span-2 bg-gradient-to-br from-amber-100 to-orange-50 border-orange-300 hover:border-orange-400'
-                    : 'bg-white border-green-200 hover:border-green-300'
-                  }
-                     ${isLocked
-                    ? 'opacity-60 grayscale cursor-not-allowed'
-                    : 'hover:-translate-y-2 hover:shadow-2xl active:scale-95'
-                  }
-                   `}
-                onClick={() => !isLocked && handleLevelSelect(level.id)}
-              >
-                {/* Icon Circle */}
-                <div className={`
-                       w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shrink-0 shadow-inner transition-colors
-                       ${isCompleted
-                    ? 'bg-green-500 text-white'
-                    : isLocked
-                      ? 'bg-gray-200 text-gray-400'
-                      : isFinal
-                        ? 'bg-orange-500 text-white animate-pulse'
-                        : 'bg-blue-500 text-white'
-                  }
-                    `}>
-                  {isCompleted ? <CheckCircle size={32} /> : isLocked ? <Lock size={28} /> : level.id}
-                </div>
-
-                {/* Text Info */}
-                <div className="flex-1 text-center md:text-left">
-                  <h3 className={`font-bold text-2xl mb-2 ${isFinal ? 'text-orange-900' : 'text-gray-800'}`}>
-                    {level.title}
-                  </h3>
-                  <p className={`font-medium text-base ${isFinal ? 'text-orange-800/80' : 'text-gray-500'}`}>
-                    {level.desc}
-                  </p>
-                </div>
-
-                {/* Action Icon (Play or Status) */}
-                <div className="hidden md:flex items-center justify-center">
-                  {!isLocked && !isCompleted && (
-                    <div className={`p-3 rounded-full ${isFinal ? 'bg-orange-200 text-orange-600' : 'bg-blue-100 text-blue-600'}`}>
-                      <Play size={32} fill="currentColor" />
-                    </div>
-                  )}
-                  {isCompleted && (
-                    <div className="text-green-600 font-bold bg-green-100 px-3 py-1 rounded-full text-sm">
-                      Concluído
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        <div className="text-center">
+          <h2 className={`text-4xl font-bold ${colors.text} drop-shadow-sm`}>{currentPhase.title}</h2>
+          <p className={`text-lg font-medium ${colors.text} opacity-70`}>{currentPhase.subtitle}</p>
         </div>
+
+        <button
+          className={`p-2 rounded-full transition-all ${selectedPhaseIndex < PHASES_INFO.length - 1 ? 'bg-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95' : 'opacity-30 cursor-not-allowed'}`}
+          onClick={() => selectedPhaseIndex < PHASES_INFO.length - 1 && setSelectedPhaseIndex(p => p + 1)}
+          disabled={selectedPhaseIndex >= PHASES_INFO.length - 1}
+        >
+          <ChevronRight size={28} className="text-gray-600" />
+        </button>
+      </div>
+
+      {/* Phase Dots */}
+      <div className="flex justify-center gap-2 mb-4">
+        {PHASES_INFO.map((phase, idx) => (
+          <button
+            key={phase.id}
+            onClick={() => setSelectedPhaseIndex(idx)}
+            className={`w-3 h-3 rounded-full transition-all ${idx === selectedPhaseIndex
+              ? `${colors.accent} scale-125`
+              : isPhaseUnlocked(phase.id)
+                ? 'bg-gray-400 hover:bg-gray-500'
+                : 'bg-gray-300'
+              }`}
+          />
+        ))}
+      </div>
+
+      {/* Levels Grid */}
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center">
+        {!phaseUnlocked ? (
+          <div className="flex flex-col items-center justify-center flex-1 gap-4 text-center p-8">
+            <Lock size={64} className="text-gray-400" />
+            <h3 className="text-2xl font-bold text-gray-500">Fase Bloqueada</h3>
+            <p className="text-gray-400 max-w-md">
+              Complete o desafio final da fase anterior para desbloquear esta fase!
+            </p>
+            <Button variant="secondary" onClick={() => setSelectedPhaseIndex(selectedPhaseIndex - 1)}>
+              <ChevronLeft className="w-4 h-4 mr-2" /> Voltar à fase anterior
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl px-4">
+            {currentPhase.levels.map((level, idx) => {
+              const progressKey = `${currentPhase.id}-${level.id}`;
+              const isCompleted = !!gameState.profile.progress[progressKey]?.completed;
+              const isLocked = !isLevelUnlocked(currentPhase.id, idx);
+              const isFinal = !!level.isFinal;
+
+              return (
+                <div
+                  key={level.id}
+                  className={`
+                    relative rounded-3xl p-6 border-b-8 shadow-xl cursor-pointer transform transition-all duration-300 flex flex-col md:flex-row items-center gap-6
+                    ${isFinal
+                      ? `md:col-span-2 bg-gradient-to-br from-amber-100 to-orange-50 border-orange-300 hover:border-orange-400`
+                      : `bg-white ${colors.border} hover:border-opacity-80`
+                    }
+                    ${isLocked
+                      ? 'opacity-60 grayscale cursor-not-allowed'
+                      : 'hover:-translate-y-2 hover:shadow-2xl active:scale-95'
+                    }
+                  `}
+                  onClick={() => !isLocked && handleLevelSelect(currentPhase.id, level.id)}
+                >
+                  {/* Icon Circle */}
+                  <div className={`
+                    w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shrink-0 shadow-inner transition-colors
+                    ${isCompleted
+                      ? 'bg-green-500 text-white'
+                      : isLocked
+                        ? 'bg-gray-200 text-gray-400'
+                        : isFinal
+                          ? 'bg-orange-500 text-white animate-pulse'
+                          : `${colors.accent} text-white`
+                    }
+                  `}>
+                    {isCompleted ? <CheckCircle size={32} /> : isLocked ? <Lock size={28} /> : isFinal ? <Trophy size={28} /> : idx + 1}
+                  </div>
+
+                  {/* Text Info */}
+                  <div className="flex-1 text-center md:text-left">
+                    <h3 className={`font-bold text-2xl mb-2 ${isFinal ? 'text-orange-900' : 'text-gray-800'}`}>
+                      {level.title}
+                    </h3>
+                    <p className={`font-medium text-base ${isFinal ? 'text-orange-800/80' : 'text-gray-500'}`}>
+                      {level.desc}
+                    </p>
+                  </div>
+
+                  {/* Action Icon */}
+                  <div className="hidden md:flex items-center justify-center">
+                    {!isLocked && !isCompleted && (
+                      <div className={`p-3 rounded-full ${isFinal ? 'bg-orange-200 text-orange-600' : `${colors.light} ${colors.text}`}`}>
+                        <Play size={32} fill="currentColor" />
+                      </div>
+                    )}
+                    {isCompleted && (
+                      <div className="text-green-600 font-bold bg-green-100 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                        <Star size={14} fill="currentColor" /> Concluído
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <DevicePickerModal key={modalKey} onSelect={handleDeviceSelect} />
