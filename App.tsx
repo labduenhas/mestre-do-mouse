@@ -144,7 +144,7 @@ const App: React.FC = () => {
     };
 
     return (
-      <div className="w-full h-screen" onContextMenu={(e) => e.preventDefault()}>
+      <div className="w-full h-screen overflow-hidden" style={{ touchAction: 'none' }} onContextMenu={(e) => e.preventDefault()}>
         {renderLevel()}
       </div>
     );
@@ -162,7 +162,7 @@ const App: React.FC = () => {
   const colors = phaseColors[currentPhase.color] || phaseColors.green;
 
   return (
-    <div className={`min-h-screen ${colors.bg} flex flex-col`}>
+    <div className={`min-h-[100dvh] ${colors.bg} flex flex-col`}>
       <header className="p-4 bg-white shadow-sm flex justify-between items-center z-10 sticky top-0">
         <div className="flex items-center gap-3">
           <span className="text-3xl">🎓</span>
@@ -186,8 +186,8 @@ const App: React.FC = () => {
         </button>
 
         <div className="text-center">
-          <h2 className={`text-4xl font-bold ${colors.text} drop-shadow-sm`}>{currentPhase.title}</h2>
-          <p className={`text-lg font-medium ${colors.text} opacity-70`}>{currentPhase.subtitle}</p>
+          <h2 className={`text-2xl sm:text-4xl font-bold ${colors.text} drop-shadow-sm`}>{currentPhase.title}</h2>
+          <p className={`text-sm sm:text-lg font-medium ${colors.text} opacity-70`}>{currentPhase.subtitle}</p>
         </div>
 
         <button
@@ -200,7 +200,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Phase Dots */}
-      <div className="flex justify-center gap-2 mb-4">
+      <div className="flex justify-center gap-2 mb-2 sm:mb-4">
         {PHASES_INFO.map((phase, idx) => (
           <button
             key={phase.id}
@@ -216,7 +216,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Levels Grid */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-8 flex flex-col items-center">
         {!phaseUnlocked ? (
           <div className="flex flex-col items-center justify-center flex-1 gap-4 text-center p-8">
             <Lock size={64} className="text-gray-400" />
@@ -229,7 +229,7 @@ const App: React.FC = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 w-full max-w-5xl px-2 sm:px-4 pb-6">
             {currentPhase.levels.map((level, idx) => {
               const progressKey = `${currentPhase.id}-${level.id}`;
               const isCompleted = !!gameState.profile.progress[progressKey]?.completed;
@@ -240,7 +240,7 @@ const App: React.FC = () => {
                 <div
                   key={level.id}
                   className={`
-                    relative rounded-3xl p-6 border-b-8 shadow-xl cursor-pointer transform transition-all duration-300 flex flex-col md:flex-row items-center gap-6
+                    relative rounded-2xl sm:rounded-3xl p-3 sm:p-6 border-b-4 sm:border-b-8 shadow-xl cursor-pointer transform transition-all duration-300 flex flex-row items-center gap-3 sm:gap-6
                     ${isFinal
                       ? `md:col-span-2 bg-gradient-to-br from-amber-100 to-orange-50 border-orange-300 hover:border-orange-400`
                       : `bg-white ${colors.border} hover:border-opacity-80`
@@ -254,7 +254,7 @@ const App: React.FC = () => {
                 >
                   {/* Icon Circle */}
                   <div className={`
-                    w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shrink-0 shadow-inner transition-colors
+                    w-12 h-12 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-xl sm:text-3xl font-bold shrink-0 shadow-inner transition-colors
                     ${isCompleted
                       ? 'bg-green-500 text-white'
                       : isLocked
@@ -264,15 +264,15 @@ const App: React.FC = () => {
                           : `${colors.accent} text-white`
                     }
                   `}>
-                    {isCompleted ? <CheckCircle size={32} /> : isLocked ? <Lock size={28} /> : isFinal ? <Trophy size={28} /> : idx + 1}
+                    {isCompleted ? <CheckCircle className="w-5 h-5 sm:w-8 sm:h-8" /> : isLocked ? <Lock className="w-5 h-5 sm:w-7 sm:h-7" /> : isFinal ? <Trophy className="w-5 h-5 sm:w-7 sm:h-7" /> : idx + 1}
                   </div>
 
                   {/* Text Info */}
-                  <div className="flex-1 text-center md:text-left">
-                    <h3 className={`font-bold text-2xl mb-2 ${isFinal ? 'text-orange-900' : 'text-gray-800'}`}>
+                  <div className="flex-1 text-left">
+                    <h3 className={`font-bold text-base sm:text-2xl mb-0.5 sm:mb-2 ${isFinal ? 'text-orange-900' : 'text-gray-800'}`}>
                       {level.title}
                     </h3>
-                    <p className={`font-medium text-base ${isFinal ? 'text-orange-800/80' : 'text-gray-500'}`}>
+                    <p className={`font-medium text-xs sm:text-base ${isFinal ? 'text-orange-800/80' : 'text-gray-500'}`}>
                       {level.desc}
                     </p>
                   </div>
