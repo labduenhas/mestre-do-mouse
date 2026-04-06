@@ -1,4 +1,5 @@
 export type InputMethod = 'mouse' | 'trackpad';
+export type SchoolGrade = 'infantil' | 'primeiro_ano' | 'segundo_ano' | 'terceiro_ano_ou_mais';
 
 export interface AppSettings {
   doubleClickSpeed: number; // ms tolerance
@@ -7,6 +8,10 @@ export interface AppSettings {
   targetSizeMultiplier: number; // 1.0 to 2.0
   highContrast: boolean;
   inputMethodHint: InputMethod; // Detected or manually set
+  schoolGrade: SchoolGrade;
+  bubbleSpeedMultiplier: number;
+  bubbleCountOffset: number;
+  bubbleSizeMultiplier: number;
   devMode: boolean; // DEV: unlock all levels and phases
 }
 

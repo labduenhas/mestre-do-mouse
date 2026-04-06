@@ -297,7 +297,12 @@ const App: React.FC = () => {
         )}
       </div>
 
-      <DevicePickerModal key={modalKey} onSelect={handleDeviceSelect} />
+      <DevicePickerModal
+        key={modalKey}
+        settings={gameState.profile.settings}
+        onUpdateSettings={handleSettingsUpdate}
+        onSelect={handleDeviceSelect}
+      />
       {showCelebration && <Celebration onClose={() => setShowCelebration(false)} />}
     </div>
   );

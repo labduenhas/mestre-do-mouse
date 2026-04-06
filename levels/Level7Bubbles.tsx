@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { AppSettings, LevelStats } from '../types';
 import { Button } from '../components/Button';
 import { playSound } from '../utils/sound';
+import { getEffectiveBubbleConfig } from '../utils/difficulty';
 import { FullscreenButton } from '../components/FullscreenButton';
 
 interface Props {
@@ -55,7 +56,10 @@ export const Level7Bubbles: React.FC<Props> = ({ settings, onComplete, onExit, i
     const bubblesRef = useRef<Bubble[]>([]);
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const config = PHASE_CONFIG[phaseIndex];
+    const config = useMemo(
+        () => getEffectiveBubbleConfig(PHASE_CONFIG[phaseIndex], settings),
+        [phaseIndex, settings],
+    );
     const DOUBLE_CLICK_TIME = settings.doubleClickSpeed;
 
     const generateBubbles = useCallback(() => {
@@ -68,7 +72,7 @@ export const Level7Bubbles: React.FC<Props> = ({ settings, onComplete, onExit, i
                 y: 100 + Math.random() * 20, // Start below screen
                 size,
                 color: BUBBLE_COLORS[Math.floor(Math.random() * BUBBLE_COLORS.length)],
-                speed: config.speed + Math.random() * 0.2,
+                speed: config.speed + Math.random() * Math.max(config.speed * 0.45, 0.03),
                 popped: false,
                 driftX: (Math.random() - 0.5) * 0.3,
             });
@@ -76,7 +80,7 @@ export const Level7Bubbles: React.FC<Props> = ({ settings, onComplete, onExit, i
         setBubbles(newBubbles);
         bubblesRef.current = newBubbles;
         setPoppedCount(0);
-    }, [config]);
+    }, [config.count, config.minSize, config.speed]);
 
     useEffect(() => {
         generateBubbles();
@@ -210,8 +214,8 @@ export const Level7Bubbles: React.FC<Props> = ({ settings, onComplete, onExit, i
                     style={{
                         left: `${b.x}%`,
                         top: `${b.y}%`,
-                        width: b.size * settings.targetSizeMultiplier,
-                        height: b.size * settings.targetSizeMultiplier,
+                        width: b.size * config.sizeMultiplier,
+                        height: b.size * config.sizeMultiplier,
                         transform: 'translate(-50%, -50%)',
                     }}
                     onPointerDown={(e) => handleBubblePointerDown(e, b.id)}

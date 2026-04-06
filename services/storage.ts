@@ -1,6 +1,12 @@
 import { UserProfile, LevelStats } from '../types';
 import { STORAGE_KEY, STORAGE_KEY_V1, INITIAL_PROFILE, DEFAULT_SETTINGS } from '../constants';
 
+const normalizeProfile = (profile: Partial<UserProfile>): UserProfile => ({
+  progress: profile.progress ?? {},
+  settings: { ...DEFAULT_SETTINGS, ...(profile.settings || {}) },
+  currentPhase: profile.currentPhase || 1,
+});
+
 /**
  * Migrates v1 data (numeric progress keys) to v2 format (string "phase-level" keys).
  * All old numeric keys belong to Phase 1.
@@ -15,11 +21,11 @@ const migrateV1toV2 = (v1Data: any): UserProfile => {
     }
   }
 
-  return {
+  return normalizeProfile({
     progress: newProgress,
-    settings: v1Data.settings || { ...DEFAULT_SETTINGS },
-    currentPhase: 1
-  };
+    settings: v1Data.settings,
+    currentPhase: 1,
+  });
 };
 
 export const loadProfile = (): UserProfile => {
@@ -28,9 +34,7 @@ export const loadProfile = (): UserProfile => {
     const v2Data = localStorage.getItem(STORAGE_KEY);
     if (v2Data) {
       const parsed = JSON.parse(v2Data);
-      // Ensure currentPhase exists (in case of partial data)
-      if (!parsed.currentPhase) parsed.currentPhase = 1;
-      return parsed;
+      return normalizeProfile(parsed);
     }
 
     // Try migrating from v1
@@ -45,12 +49,12 @@ export const loadProfile = (): UserProfile => {
   } catch (e) {
     console.error("Failed to load profile", e);
   }
-  return { ...INITIAL_PROFILE, progress: {}, settings: { ...DEFAULT_SETTINGS } };
+  return normalizeProfile(INITIAL_PROFILE);
 };
 
 export const saveProfile = (profile: UserProfile): void => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeProfile(profile)));
   } catch (e) {
     console.error("Failed to save profile", e);
   }

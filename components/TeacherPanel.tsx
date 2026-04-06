@@ -2,6 +2,7 @@ import React from 'react';
 import { AppSettings, UserProfile, LevelStats } from '../types';
 import { PHASES_INFO } from '../constants';
 import { Button } from './Button';
+import { DifficultyControlPanel } from './DifficultyControlPanel';
 import { Settings, Info, MousePointer2 } from 'lucide-react';
 
 interface Props {
@@ -113,6 +114,11 @@ export const TeacherPanel: React.FC<Props> = ({ profile, onUpdateSettings, onClo
                   onChange={(e) => handleChange('targetSizeMultiplier', parseFloat(e.target.value))}
                 />
               </div>
+
+              <DifficultyControlPanel
+                settings={settings}
+                onChange={(patch) => onUpdateSettings({ ...settings, ...patch })}
+              />
 
               {/* Dev Mode */}
               <div className="pt-4 mt-4 border-t border-gray-200">

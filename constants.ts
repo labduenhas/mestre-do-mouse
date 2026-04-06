@@ -7,6 +7,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
   targetSizeMultiplier: 1.0,
   highContrast: false,
   inputMethodHint: 'mouse',
+  schoolGrade: 'primeiro_ano',
+  bubbleSpeedMultiplier: 1,
+  bubbleCountOffset: 0,
+  bubbleSizeMultiplier: 1,
   devMode: false
 };
 
