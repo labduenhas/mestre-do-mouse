@@ -57,8 +57,9 @@ export const DevicePickerModal: React.FC<Props> = ({ settings, onUpdateSettings,
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
-            <div className="bg-white rounded-3xl p-4 sm:p-6 lg:p-8 max-w-3xl w-full max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] overflow-y-auto shadow-2xl transform transition-all animate-in zoom-in-95 duration-300 my-3 sm:my-4">
+        <div className="fixed inset-0 z-[100] overflow-y-auto bg-black/50 backdrop-blur-sm">
+            <div className="flex min-h-full items-start justify-center p-3 sm:items-center sm:p-4">
+                <div className="my-3 w-full max-w-3xl rounded-3xl bg-white p-4 shadow-2xl transform transition-all animate-in zoom-in-95 duration-300 sm:my-4 sm:p-6 lg:p-8">
                 <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-2">Bem-vindo(a)!</h2>
                 <p className="text-center text-gray-600 mb-5 sm:mb-6 text-base sm:text-lg">
                     Escolha o dispositivo e ajuste a dificuldade antes de começar.
@@ -100,13 +101,14 @@ export const DevicePickerModal: React.FC<Props> = ({ settings, onUpdateSettings,
                     className="mt-6"
                 />
 
-                <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                <div className="mt-5 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:mt-6 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-sm text-gray-500 sm:max-w-md">
                         Você poderá ajustar essas opções depois no <strong>Painel do Professor</strong>.
                     </p>
-                    <Button onClick={handleConfirm} className="w-full sm:w-auto sm:min-w-44 justify-center">
+                    <Button onClick={handleConfirm} className="w-full justify-center sm:w-auto sm:min-w-44">
                         Começar a jogar
                     </Button>
+                </div>
                 </div>
             </div>
         </div>

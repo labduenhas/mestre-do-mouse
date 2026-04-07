@@ -9,6 +9,10 @@ const getCtx = () => {
 };
 
 export const playSound = (type: 'pop' | 'success' | 'error' | 'win') => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('game-audio-feedback', { detail: { type } }));
+  }
+
   try {
     const ctx = getCtx();
     const osc = ctx.createOscillator();

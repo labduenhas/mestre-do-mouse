@@ -126,6 +126,7 @@ export const Level6PixelArt: React.FC<Props> = ({ settings, onComplete, onExit, 
     const startTime = useRef(Date.now());
     const currentPattern = PATTERNS[phaseIndex];
     const totalRequired = currentPattern.grid.flat().filter(Boolean).length;
+    const highContrast = settings.highContrast;
 
     useEffect(() => {
         // Initialize empty grid
@@ -179,15 +180,15 @@ export const Level6PixelArt: React.FC<Props> = ({ settings, onComplete, onExit, 
     const cellSize = currentPattern.gridSize <= 5 ? 'w-14 h-14 sm:w-16 sm:h-16' : 'w-10 h-10 sm:w-12 sm:h-12';
 
     return (
-        <div className="relative w-full h-full bg-amber-50 flex flex-col items-center overflow-hidden">
-            <div className="absolute top-0 left-0 p-4 w-full flex justify-between items-center bg-white/80 backdrop-blur-sm shadow-sm z-10">
+        <div className={`relative w-full h-full flex flex-col items-center overflow-hidden ${highContrast ? 'bg-slate-950' : 'bg-amber-50'}`}>
+            <div className={`absolute top-0 left-0 z-10 flex w-full items-center justify-between p-4 shadow-sm ${highContrast ? 'border-b border-yellow-300 bg-slate-900/95' : 'bg-white/80 backdrop-blur-sm'}`}>
                 <div>
-                    <h2 className="text-2xl font-bold text-amber-900">
+                    <h2 className={`text-2xl font-bold ${highContrast ? 'text-white' : 'text-amber-900'}`}>
                         {isMission ? 'Missão: Pintura' : `Pintura Digital: ${currentPattern.name}`}
                     </h2>
-                    {!isMission && <div className="text-sm text-amber-600 font-bold">Fase {phaseIndex + 1}/{PATTERNS.length}</div>}
+                    {!isMission && <div className={`text-sm font-bold ${highContrast ? 'text-yellow-200' : 'text-amber-600'}`}>Fase {phaseIndex + 1}/{PATTERNS.length}</div>}
                 </div>
-                <div className="text-xl font-bold text-green-600">{correctCount}/{totalRequired}</div>
+                <div className={`text-xl font-bold ${highContrast ? 'text-yellow-300' : 'text-green-600'}`}>{correctCount}/{totalRequired}</div>
                 {!isMission && (
                     <div className="flex gap-2">
                         <FullscreenButton />
@@ -199,13 +200,16 @@ export const Level6PixelArt: React.FC<Props> = ({ settings, onComplete, onExit, 
             <div className="flex-1 flex flex-col items-center justify-center gap-6 mt-16">
                 {/* Reference Pattern (small) */}
                 <div className="text-center">
-                    <p className="text-sm text-amber-700 font-bold mb-2">Modelo:</p>
-                    <div className="inline-grid gap-0.5" style={{ gridTemplateColumns: `repeat(${currentPattern.gridSize}, 1fr)` }}>
+                    <p className={`mb-2 text-sm font-bold ${highContrast ? 'text-yellow-200' : 'text-amber-700'}`}>Modelo:</p>
+                    <div className={`inline-grid gap-0.5 rounded-lg p-2 ${highContrast ? 'border border-yellow-300 bg-slate-900' : ''}`} style={{ gridTemplateColumns: `repeat(${currentPattern.gridSize}, 1fr)` }}>
                         {currentPattern.grid.map((row, ri) =>
                             row.map((cell, ci) => (
                                 <div
                                     key={`ref-${ri}-${ci}`}
-                                    className={`w-4 h-4 sm:w-5 sm:h-5 rounded-sm ${cell ? currentPattern.color : 'bg-gray-200'}`}
+                                    className={`w-4 h-4 sm:w-5 sm:h-5 rounded-sm border ${cell
+                                        ? `${currentPattern.color} ${highContrast ? 'border-white shadow-[0_0_0_1px_rgba(255,255,255,0.75)]' : 'border-transparent'}`
+                                        : highContrast ? 'bg-slate-700 border-slate-400' : 'bg-gray-200 border-transparent'
+                                        }`}
                                 />
                             ))
                         )}
@@ -221,8 +225,10 @@ export const Level6PixelArt: React.FC<Props> = ({ settings, onComplete, onExit, 
                                 className={`
                   ${cellSize} rounded-lg border-2 cursor-pointer transition-all duration-200
                   ${filled[ri]?.[ci]
-                                        ? `${currentPattern.color} border-transparent scale-95 shadow-inner`
-                                        : 'bg-white border-gray-300 hover:border-amber-400 hover:bg-amber-50 hover:scale-105 active:scale-90'
+                                        ? `${currentPattern.color} ${highContrast ? 'border-white scale-95 shadow-[0_0_0_2px_rgba(255,255,255,0.75)]' : 'border-transparent scale-95 shadow-inner'}`
+                                        : highContrast
+                                            ? 'bg-slate-900 border-slate-300 hover:border-yellow-300 hover:bg-slate-800 hover:scale-105 active:scale-90'
+                                            : 'bg-white border-gray-300 hover:border-amber-400 hover:bg-amber-50 hover:scale-105 active:scale-90'
                                     }
                 `}
                                 onClick={() => handleCellClick(ri, ci)}

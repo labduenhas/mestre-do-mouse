@@ -3,9 +3,155 @@ body {
     width: 100%;
     margin: 0;
     padding: 0;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 #root {
     width: 100%;
     min-height: 100vh;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.accessibility-simple-font,
+.accessibility-simple-font * {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.accessibility-reduce-motion *,
+.accessibility-reduce-motion *::before,
+.accessibility-reduce-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+}
+
+.accessibility-high-contrast {
+    background: #020617;
+    color: #f8fafc;
+}
+
+.accessibility-high-contrast,
+.accessibility-high-contrast #root {
+    background: #020617;
+    color: #f8fafc;
+}
+
+.accessibility-high-contrast [class*="text-"] {
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
+}
+
+.accessibility-high-contrast .bg-white,
+.accessibility-high-contrast .bg-white\/80,
+.accessibility-high-contrast .bg-gray-50,
+.accessibility-high-contrast .bg-slate-50,
+.accessibility-high-contrast .bg-blue-50,
+.accessibility-high-contrast .bg-green-50,
+.accessibility-high-contrast .bg-purple-50,
+.accessibility-high-contrast .bg-amber-50,
+.accessibility-high-contrast .bg-violet-50,
+.accessibility-high-contrast .bg-emerald-50,
+.accessibility-high-contrast .bg-indigo-50,
+.accessibility-high-contrast .bg-indigo-100,
+.accessibility-high-contrast .bg-red-100,
+.accessibility-high-contrast .bg-green-100,
+.accessibility-high-contrast .bg-purple-100,
+.accessibility-high-contrast .bg-orange-50,
+.accessibility-high-contrast .bg-orange-200,
+.accessibility-high-contrast .bg-yellow-100,
+.accessibility-high-contrast .bg-sky-100,
+.accessibility-high-contrast .bg-sky-200,
+.accessibility-high-contrast .bg-teal-50,
+.accessibility-high-contrast .bg-slate-100 {
+    background: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+.accessibility-high-contrast .bg-gradient-to-b {
+    background-image: linear-gradient(180deg, #0f172a, #1e293b) !important;
+}
+
+.accessibility-high-contrast .text-gray-400,
+.accessibility-high-contrast .text-gray-500,
+.accessibility-high-contrast .text-gray-600,
+.accessibility-high-contrast .text-gray-700,
+.accessibility-high-contrast .text-gray-800,
+.accessibility-high-contrast .text-blue-600,
+.accessibility-high-contrast .text-blue-800,
+.accessibility-high-contrast .text-blue-900,
+.accessibility-high-contrast .text-green-600,
+.accessibility-high-contrast .text-green-700,
+.accessibility-high-contrast .text-green-800,
+.accessibility-high-contrast .text-green-900,
+.accessibility-high-contrast .text-purple-600,
+.accessibility-high-contrast .text-purple-700,
+.accessibility-high-contrast .text-purple-800,
+.accessibility-high-contrast .text-indigo-600,
+.accessibility-high-contrast .text-indigo-700,
+.accessibility-high-contrast .text-indigo-800,
+.accessibility-high-contrast .text-indigo-900,
+.accessibility-high-contrast .text-sky-600,
+.accessibility-high-contrast .text-sky-800,
+.accessibility-high-contrast .text-sky-900,
+.accessibility-high-contrast .text-orange-600,
+.accessibility-high-contrast .text-orange-800,
+.accessibility-high-contrast .text-orange-900,
+.accessibility-high-contrast .text-yellow-300,
+.accessibility-high-contrast .text-yellow-500,
+.accessibility-high-contrast .text-yellow-600,
+.accessibility-high-contrast .text-yellow-700,
+.accessibility-high-contrast .text-yellow-900,
+.accessibility-high-contrast .text-red-800,
+.accessibility-high-contrast .text-slate-600,
+.accessibility-high-contrast .text-slate-700,
+.accessibility-high-contrast .text-slate-800,
+.accessibility-high-contrast .text-slate-900,
+.accessibility-high-contrast .text-amber-950,
+.accessibility-high-contrast .text-violet-950,
+.accessibility-high-contrast .text-emerald-950 {
+    color: #f8fafc !important;
+}
+
+.accessibility-high-contrast .border-gray-200,
+.accessibility-high-contrast .border-blue-100,
+.accessibility-high-contrast .border-blue-200,
+.accessibility-high-contrast .border-green-200,
+.accessibility-high-contrast .border-purple-200,
+.accessibility-high-contrast .border-slate-200,
+.accessibility-high-contrast .border-amber-200,
+.accessibility-high-contrast .border-violet-200,
+.accessibility-high-contrast .border-emerald-200,
+.accessibility-high-contrast .border-orange-300,
+.accessibility-high-contrast .border-orange-400,
+.accessibility-high-contrast .border-yellow-300 {
+    border-color: #facc15 !important;
+}
+
+.feedback-success {
+    box-shadow: inset 0 0 0 6px rgba(34, 197, 94, 0.25);
+}
+
+.feedback-error {
+    box-shadow: inset 0 0 0 6px rgba(239, 68, 68, 0.25);
+}
+
+.feedback-win {
+    box-shadow: inset 0 0 0 6px rgba(250, 204, 21, 0.25);
 }

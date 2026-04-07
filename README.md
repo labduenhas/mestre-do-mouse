@@ -1,20 +1,46 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Mestre do Mouse & Trackpad #
 
-# Run and deploy your AI Studio app
+Aplicação web educacional voltada ao desenvolvimento de habilidades de uso de `mouse` e `trackpad`, com atividades interativas e níveis de dificuldade adaptáveis.
 
-This contains everything you need to run your app locally.
+## Funcionalidades
 
+- seleção de dispositivo de entrada (`Mouse` ou `Trackpad`)
+- painel de dificuldade por série/período
+- ajustes finos de ritmo, quantidade e tamanho dos elementos
+- interface visual simples e amigável para prática
 
+## Tecnologias
 
-## Run Locally
+- `React`
+- `TypeScript`
+- `Vite`
 
-**Prerequisites:** Node.js
+## Rodar localmente
 
-1. Install dependencies:
+**Pré-requisito:** `Node.js`
+
+1. Instale as dependências:
    `npm install`
-2. Run the app:
+2. Inicie o ambiente de desenvolvimento:
    `npm run dev`
+3. Abra no navegador:
+   `http://localhost:3000`
 
-Deployment is available via Vercel.
+## Build de produção
+
+```bash
+npm run build
+```
+
+## Deploy
+
+O projeto pode ser publicado na `Vercel`.
+
+## Objetivo
+
+Oferecer um ambiente acessível e interativo para treino de coordenação e familiarização com dispositivos de apontamento em contextos educacionais.
+
+
+## Software Acessível      
+
+O software é acessível para pessoas com deficiência visual, auditiva, motora e intelectual.

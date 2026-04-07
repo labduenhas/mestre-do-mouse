@@ -79,6 +79,7 @@ export const Level8Puzzle: React.FC<Props> = ({ settings, onComplete, onExit, is
     const config = PUZZLE_CONFIGS[phaseIndex];
     const totalPieces = config.rows * config.cols;
     const SNAP_DIST = settings.snapDistance * 1.2;
+    const highContrast = settings.highContrast;
 
     // Compute cell size responsively: grid should fill ~65% of available space
     const computeCellSize = useCallback(() => {
@@ -271,27 +272,31 @@ export const Level8Puzzle: React.FC<Props> = ({ settings, onComplete, onExit, is
         if (!draggedPiece) return '';
 
         if (draggedPiece.targetRow === r && draggedPiece.targetCol === c) {
-            return 'shadow-[0_0_25px_6px_rgba(59,130,246,0.8)] border-blue-400 bg-blue-100/60';
+            return highContrast
+                ? 'shadow-[0_0_25px_6px_rgba(250,204,21,0.8)] border-yellow-300 bg-slate-700/80'
+                : 'shadow-[0_0_25px_6px_rgba(59,130,246,0.8)] border-blue-400 bg-blue-100/60';
         } else {
-            return 'shadow-[0_0_25px_6px_rgba(234,179,8,0.8)] border-yellow-400 bg-yellow-100/60';
+            return highContrast
+                ? 'shadow-[0_0_25px_6px_rgba(248,113,113,0.75)] border-red-300 bg-slate-700/80'
+                : 'shadow-[0_0_25px_6px_rgba(234,179,8,0.8)] border-yellow-400 bg-yellow-100/60';
         }
     };
 
     return (
         <div
             ref={containerRef}
-            className="relative w-full h-full bg-teal-50 overflow-hidden touch-none"
+            className={`relative w-full h-full overflow-hidden touch-none ${highContrast ? 'bg-slate-950' : 'bg-teal-50'}`}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
         >
-            <div className="absolute top-0 left-0 p-4 w-full flex justify-between items-center bg-white/80 backdrop-blur-sm shadow-sm z-20">
+            <div className={`absolute top-0 left-0 z-20 flex w-full items-center justify-between p-4 shadow-sm ${highContrast ? 'border-b border-yellow-300 bg-slate-900/95' : 'bg-white/80 backdrop-blur-sm'}`}>
                 <div>
-                    <h2 className="text-2xl font-bold text-teal-900">
+                    <h2 className={`text-2xl font-bold ${highContrast ? 'text-white' : 'text-teal-900'}`}>
                         {isMission ? 'Missão: Puzzle' : `Quebra-Cabeça: ${config.name}`}
                     </h2>
-                    {!isMission && <div className="text-sm text-teal-600 font-bold">Fase {phaseIndex + 1}/{PUZZLE_CONFIGS.length}</div>}
+                    {!isMission && <div className={`text-sm font-bold ${highContrast ? 'text-yellow-200' : 'text-teal-600'}`}>Fase {phaseIndex + 1}/{PUZZLE_CONFIGS.length}</div>}
                 </div>
-                <div className="text-xl font-bold text-green-600">{placedCount}/{totalPieces}</div>
+                <div className={`text-xl font-bold ${highContrast ? 'text-yellow-300' : 'text-green-600'}`}>{placedCount}/{totalPieces}</div>
                 {!isMission && (
                     <div className="flex gap-2">
                         <FullscreenButton />
@@ -312,20 +317,20 @@ export const Level8Puzzle: React.FC<Props> = ({ settings, onComplete, onExit, is
                         <div
                             key={`target-${r}-${c}`}
                             className={`absolute rounded-xl transition-all duration-200 flex items-center justify-center
-                ${glowClass || 'bg-transparent'}
+                ${glowClass || (highContrast ? 'bg-slate-900/60' : 'bg-transparent')}
               `}
                             style={{
                                 left: pos.x,
                                 top: pos.y,
                                 width: cellSize - 6,
                                 height: cellSize - 6,
-                                border: `2.5px solid ${pieceHex}`,
-                                borderStyle: isPlaced ? 'solid' : 'solid',
+                                border: `2.5px solid ${highContrast ? '#f8fafc' : pieceHex}`,
+                                borderStyle: 'solid',
                                 opacity: isPlaced ? 0 : 1,
                             }}
                         >
                             {!isPlaced && slotPiece && (
-                                <span style={{ fontSize: cellSize * 0.38, opacity: 0.18 }} className="select-none pointer-events-none">
+                                <span style={{ fontSize: cellSize * 0.38, opacity: highContrast ? 0.34 : 0.18 }} className="select-none pointer-events-none">
                                     {slotPiece.label}
                                 </span>
                             )}
@@ -339,7 +344,8 @@ export const Level8Puzzle: React.FC<Props> = ({ settings, onComplete, onExit, is
                 <div
                     key={piece.id}
                     className={`
-            absolute rounded-xl shadow-lg border-2 border-white/60 transition-shadow
+            absolute rounded-xl shadow-lg border-2 transition-shadow
+            ${highContrast ? 'border-white/90 ring-1 ring-yellow-200/80' : 'border-white/60'}
             ${piece.placed
                             ? 'cursor-default'
                             : dragId === piece.id
@@ -364,7 +370,7 @@ export const Level8Puzzle: React.FC<Props> = ({ settings, onComplete, onExit, is
 
             {/* Hint */}
             <div className="absolute bottom-4 left-0 right-0 text-center pointer-events-none">
-                <p className="text-sm text-teal-700 font-bold bg-white/70 inline-block px-4 py-2 rounded-full">
+                <p className={`inline-block rounded-full px-4 py-2 text-sm font-bold ${highContrast ? 'border border-yellow-300 bg-slate-900/95 text-white' : 'bg-white/70 text-teal-700'}`}>
                     {settings.stickyDrag
                         ? 'Clique para pegar, clique de novo para soltar'
                         : 'Arraste as peças para a posição correta'}

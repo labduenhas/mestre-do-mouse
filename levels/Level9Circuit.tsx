@@ -109,9 +109,7 @@ const CIRCUITS: Rect[][] = [
  * Renders all rectangles as a SINGLE SVG path — no internal borders or seams.
  * The glow comes from a CSS drop-shadow on the outer silhouette only.
  */
-const CircuitPath: React.FC<{ rects: Rect[] }> = ({ rects }) => {
-    // Merge all rects into a single path `d` string.
-    // Each rect becomes M x,y h w v h h -w Z — one continuous fill.
+const CircuitPath: React.FC<{ rects: Rect[]; highContrast?: boolean }> = ({ rects, highContrast = false }) => {
     const d = rects.map(r =>
         `M${r.x},${r.y} h${r.w} v${r.h} h${-r.w}Z`
     ).join(' ');
@@ -122,11 +120,11 @@ const CircuitPath: React.FC<{ rects: Rect[] }> = ({ rects }) => {
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
-            style={{ filter: 'drop-shadow(0 0 6px rgba(79, 70, 229, 0.45))' }}
+            style={{ filter: highContrast ? 'drop-shadow(0 0 10px rgba(250, 204, 21, 0.8))' : 'drop-shadow(0 0 6px rgba(79, 70, 229, 0.45))' }}
         >
             <path
                 d={d}
-                fill="#4F46E5"
+                fill={highContrast ? '#facc15' : '#4F46E5'}
                 stroke="none"
                 fillRule="nonzero"
             />
@@ -146,6 +144,7 @@ export const Level9Circuit: React.FC<Props> = ({ settings, onComplete, onExit, i
     const currentPath = CIRCUITS[phase];
     const startRect = currentPath[0];
     const endRect = currentPath[currentPath.length - 1];
+    const highContrast = settings.highContrast;
 
     const isSafe = (xPct: number, yPct: number) => {
         return currentPath.some(r =>
@@ -200,15 +199,15 @@ export const Level9Circuit: React.FC<Props> = ({ settings, onComplete, onExit, i
 
     return (
         <div
-            className={`relative w-full h-full bg-slate-100 overflow-hidden cursor-none touch-none ${shake ? 'animate-[shake_0.2s_ease-in-out_2]' : ''}`}
+            className={`relative w-full h-full overflow-hidden cursor-none touch-none ${highContrast ? 'bg-slate-950' : 'bg-slate-100'} ${shake ? 'animate-[shake_0.2s_ease-in-out_2]' : ''}`}
             onPointerMove={handlePointerMove}
         >
-            <div className="absolute top-0 left-0 p-4 w-full flex justify-between items-center z-20 pointer-events-none">
-                <div>
-                    <h2 className="text-2xl font-bold text-indigo-800 drop-shadow-md">
+            <div className="absolute top-0 left-0 z-20 flex w-full items-center justify-between p-4 pointer-events-none">
+                <div className={`rounded-2xl px-3 py-2 ${highContrast ? 'border border-yellow-300 bg-slate-950/90' : 'bg-white/65 backdrop-blur-sm'}`}>
+                    <h2 className={`text-2xl font-bold drop-shadow-md ${highContrast ? 'text-white' : 'text-indigo-800'}`}>
                         {isMission ? 'Missão: Circuito' : 'Circuito do Robô'}
                     </h2>
-                    {!isMission && <div className="text-indigo-600 font-bold">Fase {phase + 1}/{TOTAL_PHASES}</div>}
+                    {!isMission && <div className={`font-bold ${highContrast ? 'text-yellow-200' : 'text-indigo-600'}`}>Fase {phase + 1}/{TOTAL_PHASES}</div>}
                 </div>
                 <div className="pointer-events-auto">
                     {!isMission && (
@@ -221,22 +220,22 @@ export const Level9Circuit: React.FC<Props> = ({ settings, onComplete, onExit, i
             </div>
 
             {/* Unified Circuit Path (SVG-based, no overlapping borders) */}
-            <CircuitPath rects={currentPath} />
+            <CircuitPath rects={currentPath} highContrast={highContrast} />
 
             {/* Start Zone */}
             <div
-                className={`absolute flex items-center justify-center font-bold text-white pointer-events-none transition-opacity z-10 ${isHolding ? 'opacity-20' : 'opacity-100 animate-pulse'}`}
+                className={`absolute flex items-center justify-center font-bold pointer-events-none transition-opacity z-10 ${isHolding ? 'opacity-20' : 'opacity-100 animate-pulse'}`}
                 style={{ left: `${startRect.x}%`, top: `${startRect.y}%`, width: `${startRect.w}%`, height: `${startRect.h}%` }}
             >
-                <div className="text-center">
+                <div className={`rounded-xl px-3 py-2 text-center ${highContrast ? 'border border-yellow-300 bg-slate-950/90 text-white' : 'text-white'}`}>
                     <div className="text-sm">INÍCIO</div>
-                    {!isHolding && <div className="text-xs text-emerald-200">Passe aqui</div>}
+                    {!isHolding && <div className={`text-xs ${highContrast ? 'text-yellow-200' : 'text-emerald-200'}`}>Passe aqui</div>}
                 </div>
             </div>
 
             {/* End Zone */}
             <div
-                className="absolute flex items-center justify-center font-bold text-amber-900 bg-amber-400 border-2 border-amber-500 animate-pulse pointer-events-none shadow-[0_0_15px_rgba(245,158,11,0.6)] z-10"
+                className={`absolute flex items-center justify-center font-bold animate-pulse pointer-events-none z-10 ${highContrast ? 'border-2 border-white bg-yellow-300 text-slate-950 shadow-[0_0_18px_rgba(250,204,21,0.75)]' : 'text-amber-900 bg-amber-400 border-2 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]'}`}
                 style={{ left: `${endRect.x}%`, top: `${endRect.y}%`, width: `${endRect.w}%`, height: `${endRect.h}%` }}
             >
                 <Flag size={20} />
@@ -252,8 +251,8 @@ export const Level9Circuit: React.FC<Props> = ({ settings, onComplete, onExit, i
                 }}
             >
                 <div className={`relative ${isHolding ? 'scale-100' : 'scale-50 grayscale opacity-50'}`}>
-                    <Bot size={40} className="text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]" />
-                    {!isHolding && <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-32 bg-red-500 text-white text-xs p-1 rounded text-center">Volte ao início!</div>}
+                    <Bot size={40} className={highContrast ? 'text-slate-950 drop-shadow-[0_0_12px_rgba(255,255,255,0.8)]' : 'text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]'} />
+                    {!isHolding && <div className={`absolute -top-6 left-1/2 -translate-x-1/2 w-32 text-xs p-1 rounded text-center ${highContrast ? 'bg-slate-950 text-yellow-200 border border-yellow-300' : 'bg-red-500 text-white'}`}>Volte ao início!</div>}
                 </div>
             </div>
 

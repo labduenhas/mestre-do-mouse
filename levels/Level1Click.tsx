@@ -20,6 +20,7 @@ interface Target {
 }
 
 const COLORS = ['text-red-500', 'text-blue-500', 'text-green-500', 'text-yellow-500', 'text-purple-500', 'text-pink-500'];
+const HIGH_CONTRAST_COLORS = ['text-yellow-300', 'text-cyan-300', 'text-fuchsia-300', 'text-lime-300', 'text-orange-300', 'text-rose-300'];
 
 const PHASES = [
   { name: "Bolinhas", icon: Circle, count: 3 },
@@ -39,7 +40,9 @@ export const Level1Click: React.FC<Props> = ({ settings, onComplete, onExit, isM
   const [totalAttempts, setTotalAttempts] = useState(0);
 
   const startTime = useRef(Date.now());
+  const suppressBackgroundFeedbackRef = useRef(false);
   const currentPhase = PHASES[phaseIndex];
+  const isHighContrast = settings.highContrast;
 
   useEffect(() => {
     generateTargets();
@@ -49,25 +52,34 @@ export const Level1Click: React.FC<Props> = ({ settings, onComplete, onExit, isM
 
   const generateTargets = () => {
     const newTargets = [];
+    const palette = settings.highContrast ? HIGH_CONTRAST_COLORS : COLORS;
+
     for (let i = 0; i < currentPhase.count; i++) {
       newTargets.push({
         id: i,
         x: 10 + Math.random() * 80,
         y: 15 + Math.random() * 70,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)]
+        color: palette[i % palette.length]
       });
     }
     setTargets(newTargets);
   };
 
   const handleBackgroundClick = (e: React.PointerEvent) => {
-    // Just track attempts, no negative visual feedback
+    if (suppressBackgroundFeedbackRef.current) {
+      suppressBackgroundFeedbackRef.current = false;
+      return;
+    }
+
+    if (e.target !== e.currentTarget) return;
+
     setTotalAttempts(p => p + 1);
     playSound('error');
   };
 
   const handleTargetClick = (e: React.PointerEvent, id: number) => {
     e.stopPropagation();
+    suppressBackgroundFeedbackRef.current = true;
     playSound('pop');
 
     const newTargets = targets.filter(t => t.id !== id);
@@ -102,15 +114,15 @@ export const Level1Click: React.FC<Props> = ({ settings, onComplete, onExit, isM
   const Icon = currentPhase.icon;
 
   return (
-    <div className="relative w-full h-full bg-blue-50 overflow-hidden" onPointerUp={handleBackgroundClick}>
-      <div className="absolute top-0 left-0 p-4 w-full flex justify-between items-center bg-white/80 backdrop-blur-sm shadow-sm z-10">
+    <div className={`relative w-full h-full overflow-hidden ${isHighContrast ? 'bg-slate-950' : 'bg-blue-50'}`} onPointerUp={handleBackgroundClick}>
+      <div className={`absolute top-0 left-0 z-10 flex w-full items-center justify-between p-4 shadow-sm ${isHighContrast ? 'border-b border-yellow-300 bg-slate-900/95' : 'bg-white/80 backdrop-blur-sm'}`}>
         <div>
-          <h2 className="text-2xl font-bold text-blue-900">
+          <h2 className={`text-2xl font-bold ${isHighContrast ? 'text-white' : 'text-blue-900'}`}>
             {isMission ? 'Missão: Clique' : `Nível 1: ${currentPhase.name}`}
           </h2>
-          {!isMission && <div className="text-sm text-blue-600 font-bold">Fase {phaseIndex + 1}/{PHASES.length}</div>}
+          {!isMission && <div className={`text-sm font-bold ${isHighContrast ? 'text-yellow-200' : 'text-blue-600'}`}>Fase {phaseIndex + 1}/{PHASES.length}</div>}
         </div>
-        <div className="text-xl font-bold text-green-600">{score}/{currentPhase.count}</div>
+        <div className={`text-xl font-bold ${isHighContrast ? 'text-yellow-300' : 'text-green-600'}`}>{score}/{currentPhase.count}</div>
         {!isMission && (
           <div className="flex gap-2">
             <FullscreenButton />
@@ -132,7 +144,7 @@ export const Level1Click: React.FC<Props> = ({ settings, onComplete, onExit, isM
           onPointerDown={(e) => handleTargetClick(e, t.id)}
         >
           <Icon
-            className={`w-full h-full ${t.color} fill-current drop-shadow-lg`}
+            className={`w-full h-full ${isHighContrast ? `${t.color} fill-current drop-shadow-[0_0_14px_rgba(255,255,255,0.7)]` : `${t.color} fill-current drop-shadow-lg`}`}
             strokeWidth={1.5}
           />
         </div>
